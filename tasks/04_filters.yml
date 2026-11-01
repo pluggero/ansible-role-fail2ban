@@ -1,0 +1,11 @@
+---
+- name: Copy custom filters into filter.d
+  ansible.builtin.copy:
+    src: "{{ fail2ban_filterd_path }}/"
+    dest: "{{ fail2ban_config_dir }}/filter.d/"
+    owner: "{{ fail2ban_config_file_owner }}"
+    group: "{{ fail2ban_config_file_group }}"
+    mode: "{{ fail2ban_config_file_mode }}"
+  become: true
+  notify: Restart fail2ban
+  when: fail2ban_filterd_path is defined

@@ -1,0 +1,3 @@
+---
+fail2ban_distro_pkgs:
+  - fail2ban

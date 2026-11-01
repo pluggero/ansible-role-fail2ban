@@ -1,0 +1,13 @@
+{{ ansible_managed | comment }}
+{% set base_configuration = [
+  {'section': 'Definition', 'option': 'loglevel', 'value': fail2ban_loglevel},
+  {'section': 'Definition', 'option': 'logtarget', 'value': fail2ban_logtarget},
+] %}
+{% set all_configuration = base_configuration + fail2ban_configuration %}
+{% for section in all_configuration | map(attribute='section') | unique | list %}
+[{{ section }}]
+{% for item in all_configuration | selectattr('section', 'equalto', section) %}
+{{ item.option }} = {{ item.value }}
+{% endfor %}
+
+{% endfor %}

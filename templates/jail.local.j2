@@ -1,0 +1,23 @@
+{{ ansible_managed | comment }}
+{% set base_jail_configuration = [
+  {'section': 'DEFAULT', 'option': 'bantime', 'value': fail2ban_bantime},
+  {'section': 'DEFAULT', 'option': 'findtime', 'value': fail2ban_findtime},
+  {'section': 'DEFAULT', 'option': 'maxretry', 'value': fail2ban_maxretry},
+  {'section': 'DEFAULT', 'option': 'backend', 'value': fail2ban_backend},
+  {'section': 'DEFAULT', 'option': 'destemail', 'value': fail2ban_destemail},
+  {'section': 'DEFAULT', 'option': 'sender', 'value': fail2ban_sender},
+  {'section': 'DEFAULT', 'option': 'action', 'value': fail2ban_action},
+  {'section': 'DEFAULT', 'option': 'ignoreself', 'value': fail2ban_ignoreself},
+  {'section': 'DEFAULT', 'option': 'ignoreip', 'value': fail2ban_ignoreips | join(' ')},
+] %}
+{% if fail2ban_banaction %}
+{% set base_jail_configuration = base_jail_configuration + [{'section': 'DEFAULT', 'option': 'banaction', 'value': fail2ban_banaction}] %}
+{% endif %}
+{% set all_jail_configuration = base_jail_configuration + fail2ban_jail_configuration %}
+{% for section in all_jail_configuration | map(attribute='section') | unique | list %}
+[{{ section }}]
+{% for item in all_jail_configuration | selectattr('section', 'equalto', section) %}
+{{ item.option }} = {{ item.value }}
+{% endfor %}
+
+{% endfor %}

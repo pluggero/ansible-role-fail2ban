@@ -1,0 +1,22 @@
+---
+- name: Assert fail2ban_jails is a list
+  ansible.builtin.assert:
+    that: fail2ban_jails is sequence
+    fail_msg: "fail2ban_jails must be a list of jail definitions."
+
+- name: Assert every jail has a valid name
+  ansible.builtin.assert:
+    that:
+      - jail_entry.name is defined
+      - jail_entry.name | length > 0
+      - jail_entry.name is match("^[A-Za-z0-9_.-]+$")
+    fail_msg: "Every fail2ban_jails entry needs a non-empty 'name' matching ^[A-Za-z0-9_.-]+$: {{ jail_entry }}"
+  loop: "{{ fail2ban_jails }}"
+  loop_control:
+    loop_var: jail_entry
+    label: "{{ jail_entry.name | default('unnamed') }}"
+
+- name: Assert jail names are unique
+  ansible.builtin.assert:
+    that: (fail2ban_jails | map(attribute='name') | list | unique | length) == (fail2ban_jails | length)
+    fail_msg: "fail2ban_jails contains duplicate jail names."

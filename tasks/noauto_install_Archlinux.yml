@@ -1,0 +1,22 @@
+---
+- name: Ensure we are using pacman
+  ansible.builtin.fail:
+    msg: "This role only supports Archlinux systems that use pacman as a package manager."
+  when: ansible_pkg_mgr != "pacman"
+
+- name: Install fail2ban via pacman
+  block:
+    - name: Update pacman cache
+      community.general.pacman:
+        update_cache: true
+      changed_when: false # The pacman module currently does not support cache_valid_time.
+      become: true
+
+    - name: Ensure fail2ban packages are installed
+      community.general.pacman:
+        name: "{{ package }}"
+        state: present
+      loop: "{{ fail2ban_distro_pkgs }}"
+      loop_control:
+        loop_var: package
+      become: true

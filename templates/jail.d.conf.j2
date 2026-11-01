@@ -1,0 +1,33 @@
+{{ ansible_managed | comment }}
+[{{ jail_entry.name }}]
+enabled = {{ jail_entry.enabled | default(true) | lower }}
+filter = {{ jail_entry.filter | default(jail_entry.name) }}
+{% if jail_entry.port is defined %}
+port = {{ jail_entry.port }}
+{% endif %}
+{% if jail_entry.logpath is defined %}
+logpath = {{ jail_entry.logpath if jail_entry.logpath is string else jail_entry.logpath | join('\n           ') }}
+{% endif %}
+{% if jail_entry.backend is defined %}
+backend = {{ jail_entry.backend }}
+{% endif %}
+{% if jail_entry.maxretry is defined %}
+maxretry = {{ jail_entry.maxretry }}
+{% endif %}
+{% if jail_entry.findtime is defined %}
+findtime = {{ jail_entry.findtime }}
+{% endif %}
+{% if jail_entry.bantime is defined %}
+bantime = {{ jail_entry.bantime }}
+{% endif %}
+{% if jail_entry.action is defined %}
+action = {{ jail_entry.action }}
+{% endif %}
+{% if jail_entry.ignoreip is defined %}
+ignoreip = {{ jail_entry.ignoreip | join(' ') }}
+{% endif %}
+{% if jail_entry.extra_options is defined %}
+{% for key, value in jail_entry.extra_options.items() %}
+{{ key }} = {{ value }}
+{% endfor %}
+{% endif %}

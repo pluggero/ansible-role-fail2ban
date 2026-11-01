@@ -1,0 +1,20 @@
+---
+dependencies: []
+
+galaxy_info:
+  role_name: fail2ban
+  namespace: pluggero
+  author: pluggero
+  description: "Install and configure fail2ban on various Linux distributions."
+  company: Pluggramming
+  license: MIT
+  min_ansible_version: "2.10"
+  platforms:
+    - name: ArchLinux
+      versions:
+        - all
+    - name: Debian
+      versions:
+        - bookworm
+
+  galaxy_tags: []

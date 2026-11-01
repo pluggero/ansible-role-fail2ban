@@ -1,0 +1,31 @@
+---
+- name: Verify
+  hosts: all
+
+  vars:
+    ansible_user: ansible
+    ansible_password: ansible
+    ansible_become_password: ansible
+
+  tasks:
+    - name: Check fail2ban service is active
+      ansible.builtin.systemd:
+        name: fail2ban
+      register: fail2ban_service_status
+      become: true
+
+    - name: Assert fail2ban service is active
+      ansible.builtin.assert:
+        that: fail2ban_service_status.status.ActiveState == "active"
+        fail_msg: "fail2ban service is not active: {{ fail2ban_service_status.status.ActiveState }}"
+
+    - name: Check sshd jail status via fail2ban-client
+      ansible.builtin.command: fail2ban-client status sshd
+      register: fail2ban_sshd_jail_status
+      changed_when: false
+      become: true
+
+    - name: Assert sshd jail loaded without errors
+      ansible.builtin.assert:
+        that: "'Currently failed' in fail2ban_sshd_jail_status.stdout"
+        fail_msg: "sshd jail not reporting expected status: {{ fail2ban_sshd_jail_status.stdout }}"

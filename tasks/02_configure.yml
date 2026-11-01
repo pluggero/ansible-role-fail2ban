@@ -1,0 +1,29 @@
+---
+- name: Ensure jail.d directory exists
+  ansible.builtin.file:
+    path: "{{ fail2ban_jail_d_dir }}"
+    state: directory
+    owner: "{{ fail2ban_config_file_owner }}"
+    group: "{{ fail2ban_config_file_group }}"
+    mode: "0755"
+  become: true
+
+- name: Template fail2ban.local
+  ansible.builtin.template:
+    src: fail2ban.local.j2
+    dest: "{{ fail2ban_config_dir }}/fail2ban.local"
+    owner: "{{ fail2ban_config_file_owner }}"
+    group: "{{ fail2ban_config_file_group }}"
+    mode: "{{ fail2ban_config_file_mode }}"
+  become: true
+  notify: Restart fail2ban
+
+- name: Template jail.local
+  ansible.builtin.template:
+    src: jail.local.j2
+    dest: "{{ fail2ban_jail_local_file }}"
+    owner: "{{ fail2ban_config_file_owner }}"
+    group: "{{ fail2ban_config_file_group }}"
+    mode: "{{ fail2ban_config_file_mode }}"
+  become: true
+  notify: Restart fail2ban

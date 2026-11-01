@@ -1,0 +1,70 @@
+---
+# Installation
+fail2ban_install_method: "package"
+
+# Paths
+fail2ban_config_dir: "/etc/fail2ban"
+fail2ban_jail_d_dir: "{{ fail2ban_config_dir }}/jail.d"
+fail2ban_jail_local_file: "{{ fail2ban_config_dir }}/jail.local"
+
+# Rendered config file ownership/permissions
+fail2ban_config_file_owner: "root"
+fail2ban_config_file_group: "root"
+fail2ban_config_file_mode: "0644"
+
+# Service management
+fail2ban_service_name: "fail2ban"
+fail2ban_service_enabled: true
+fail2ban_service_state: "started" # started, restarted, stopped
+
+# fail2ban.local [Definition]
+fail2ban_loglevel: "INFO"
+fail2ban_logtarget: "/var/log/fail2ban.log"
+
+# jail.local [DEFAULT]
+fail2ban_bantime: 600 # seconds
+fail2ban_findtime: 600 # seconds
+fail2ban_maxretry: 5
+fail2ban_backend: "auto"
+fail2ban_destemail: "root@localhost"
+fail2ban_sender: "root@{{ ansible_facts['fqdn'] }}"
+fail2ban_action: "%(action_)s"
+fail2ban_banaction: "" # empty = fail2ban's own distro default
+fail2ban_ignoreself: "true"
+fail2ban_ignoreips:
+  - "127.0.0.1/8 ::1"
+
+# Escape hatch for fail2ban.local, beyond the named vars above
+fail2ban_configuration: []
+# - option: socket
+#   value: /var/run/fail2ban/fail2ban.sock
+#   section: Definition
+
+# Escape hatch for jail.local [DEFAULT] only; per-jail settings go in fail2ban_jails
+fail2ban_jail_configuration: []
+# - option: ignoreself
+#   value: "true"
+#   section: DEFAULT
+
+# Controller-side dir of custom filters to copy into filter.d/; unset to skip
+# fail2ban_filterd_path: "files/filter.d"
+
+# Jail definitions — see README for the full schema
+fail2ban_jails: []
+# - name: sshd
+#   enabled: true
+#   filter: sshd
+#   port: ssh
+#   logpath: /var/log/auth.log
+#   maxretry: 5
+#   findtime: 600
+#   bantime: 3600
+# - name: nginx-http-auth
+#   enabled: true
+#   filter: nginx-http-auth
+#   port: "http,https"
+#   logpath: /var/log/nginx/error.log
+#   maxretry: 6
+#   bantime: 3600
+#   extra_options:
+#     mode: aggressive
