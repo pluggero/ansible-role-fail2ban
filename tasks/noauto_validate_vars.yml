@@ -1,9 +1,4 @@
 ---
-- name: Assert fail2ban_jails is a list
-  ansible.builtin.assert:
-    that: fail2ban_jails is sequence
-    fail_msg: "fail2ban_jails must be a list of jail definitions."
-
 - name: Assert every jail has a valid name
   ansible.builtin.assert:
     that:

@@ -1,0 +1,227 @@
+---
+argument_specs:
+  main:
+    short_description: Installs and configures fail2ban on various Linux distributions.
+    description: >-
+      Installs fail2ban, renders fail2ban.local, jail.local ([DEFAULT]), per-jail
+      jail.d/<name>.conf files, and manages the fail2ban service.
+    options:
+      fail2ban_install_method:
+        type: str
+        required: false
+        default: "package"
+        choices:
+          - package
+        description: Installation method used to install fail2ban. Currently only installation via the OS package manager is implemented.
+      fail2ban_config_dir:
+        type: path
+        required: false
+        default: "/etc/fail2ban"
+        description: Directory containing fail2ban's configuration files.
+      fail2ban_jail_d_dir:
+        type: path
+        required: false
+        default: "{{ fail2ban_config_dir }}/jail.d"
+        description: Directory the per-jail jail.d/<name>.conf files are rendered into.
+      fail2ban_jail_local_file:
+        type: path
+        required: false
+        default: "{{ fail2ban_config_dir }}/jail.local"
+        description: Path to the rendered jail.local file.
+      fail2ban_config_file_owner:
+        type: str
+        required: false
+        default: "root"
+        description: Owner of the rendered fail2ban configuration files.
+      fail2ban_config_file_group:
+        type: str
+        required: false
+        default: "root"
+        description: Group of the rendered fail2ban configuration files.
+      fail2ban_config_file_mode:
+        type: str
+        required: false
+        default: "0644"
+        description: File mode of the rendered fail2ban configuration files.
+      fail2ban_service_name:
+        type: str
+        required: false
+        default: "fail2ban"
+        description: Name of the fail2ban service.
+      fail2ban_service_enabled:
+        type: bool
+        required: false
+        default: true
+        description: Whether the fail2ban service is enabled at boot.
+      fail2ban_service_state:
+        type: str
+        required: false
+        default: "started"
+        choices:
+          - started
+          - restarted
+          - stopped
+        description: State the fail2ban service is set to.
+      fail2ban_loglevel:
+        type: str
+        required: false
+        default: "INFO"
+        description: Log level rendered into fail2ban.local [Definition].
+      fail2ban_logtarget:
+        type: str
+        required: false
+        default: "/var/log/fail2ban.log"
+        description: Log target rendered into fail2ban.local [Definition].
+      fail2ban_bantime:
+        type: int
+        required: false
+        default: 600
+        description: Default ban time, in seconds, rendered into jail.local [DEFAULT].
+      fail2ban_findtime:
+        type: int
+        required: false
+        default: 600
+        description: Default find time, in seconds, rendered into jail.local [DEFAULT].
+      fail2ban_maxretry:
+        type: int
+        required: false
+        default: 5
+        description: Default max retry count rendered into jail.local [DEFAULT].
+      fail2ban_backend:
+        type: str
+        required: false
+        default: "auto"
+        description: Default backend rendered into jail.local [DEFAULT].
+      fail2ban_destemail:
+        type: str
+        required: false
+        default: "root@localhost"
+        description: Default destination email address rendered into jail.local [DEFAULT].
+      fail2ban_sender:
+        type: str
+        required: false
+        default: "root@{{ ansible_facts['fqdn'] }}"
+        description: Default sender address rendered into jail.local [DEFAULT].
+      fail2ban_action:
+        type: str
+        required: false
+        default: "%(action_)s"
+        description: Default action rendered into jail.local [DEFAULT].
+      fail2ban_banaction:
+        type: str
+        required: false
+        default: ""
+        description: Default banaction rendered into jail.local [DEFAULT]. Empty means fail2ban's own distro default is used.
+      fail2ban_ignoreself:
+        type: str
+        required: false
+        default: "true"
+        description: Default ignoreself rendered into jail.local [DEFAULT].
+      fail2ban_ignoreips:
+        type: list
+        elements: str
+        required: false
+        default:
+          - "127.0.0.1/8 ::1"
+        description: Default ignoreip list rendered into jail.local [DEFAULT].
+      fail2ban_configuration:
+        type: list
+        elements: dict
+        required: false
+        default: []
+        description: Escape hatch for fail2ban.local keys beyond the named variables above.
+        options:
+          option:
+            type: str
+            required: true
+            description: Option name to render.
+          value:
+            type: str
+            required: true
+            description: Value to render for the option.
+          section:
+            type: str
+            required: true
+            description: Section the option is rendered into (e.g. Definition).
+      fail2ban_jail_configuration:
+        type: list
+        elements: dict
+        required: false
+        default: []
+        description: Escape hatch for jail.local [DEFAULT] keys beyond the named variables above. Per-jail settings go in fail2ban_jails.
+        options:
+          option:
+            type: str
+            required: true
+            description: Option name to render.
+          value:
+            type: str
+            required: true
+            description: Value to render for the option.
+          section:
+            type: str
+            required: true
+            description: Section the option is rendered into (DEFAULT only is used by this role).
+      fail2ban_filterd_path:
+        type: str
+        required: false
+        description: Controller-side directory of custom filter definitions to copy into filter.d/. Unset (default) to skip.
+      fail2ban_jails:
+        type: list
+        elements: dict
+        required: false
+        default: []
+        description: Jail definitions. Each entry renders to its own jail.d/<name>.conf.
+        options:
+          name:
+            type: str
+            required: true
+            description: Jail name, must match ^[A-Za-z0-9_.-]+$ and be unique. Becomes jail.d/<name>.conf and [<name>].
+          enabled:
+            type: bool
+            required: false
+            default: true
+            description: Whether the jail is enabled.
+          filter:
+            type: str
+            required: false
+            description: Filter used by the jail. Defaults to the jail's name if omitted.
+          port:
+            type: str
+            required: false
+            description: Port(s) the jail applies to.
+          logpath:
+            type: str
+            required: false
+            description: >-
+              Log path(s) the jail reads from. Omit when using the systemd backend. May also be
+              given as a list of strings, joined with newlines when rendered.
+          backend:
+            type: str
+            required: false
+            description: Backend used by the jail. Inherits [DEFAULT] if omitted.
+          maxretry:
+            type: int
+            required: false
+            description: Max retry count for the jail. Inherits [DEFAULT] if omitted.
+          findtime:
+            type: int
+            required: false
+            description: Find time, in seconds, for the jail. Inherits [DEFAULT] if omitted.
+          bantime:
+            type: int
+            required: false
+            description: Ban time, in seconds, for the jail. Inherits [DEFAULT] if omitted.
+          action:
+            type: str
+            required: false
+            description: Action for the jail. Inherits [DEFAULT] if omitted.
+          ignoreip:
+            type: list
+            elements: str
+            required: false
+            description: Ignored IPs for the jail. Inherits [DEFAULT] if omitted.
+          extra_options:
+            type: dict
+            required: false
+            description: Verbatim key = value lines rendered into the jail, beyond the named options above.
